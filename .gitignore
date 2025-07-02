@@ -1,0 +1,16 @@
+# Ignore data folder
+*.tar
+*.zip
+
+# Ignore Python cache and environment files
+__pycache__/
+*.py[cod]
+.env
+*.env
+
+.ipynb_checkpoints/
+
+# Ignore VS Code and system files
+.vscode/
+.DS_Store
+
