@@ -2,8 +2,7 @@
 ---
 
 # ANABAG Handler
-
-!\[Project Logo or Image Here] <!-- TODO: Insert a relevant image or remove this line -->
+![Graphical presentation](images/3ulu_publi.png)
 
 This repository contains Python scripts that help you **select specific protein complexes and features** from the **ANABAG** dataset.
 
@@ -100,16 +99,18 @@ To preview or explore the selected data, open the Jupyter notebook included in t
 
 ---
 
-## Project Structure (Quick Overview)
-
+## Structure
 ```
 ANABAG-handler/
 ├── src/
-│   └── selection.py         # Main script for selecting features/complexes
+│   └── select_complexes.py                 # Script for selecting complexes
+│   └── quick_analysis_example.ipynb        # notebook for example visualisation
 ├── dataset_info/
-│   ├── example_configuration
-│   └── complete_dictionnary_of_features.txt
-├── notebooks/
-│   └── your_visualization_notebook.ipynb
+│   ├── selection_file_complete.tsv         # Configuration file with all possible parameters
+│   ├── cluster_informations.tsv            # Sequence and interface clustering
+│   ├── per_chain_pdbff_informations.tsv    # Features (per chain) for selection
+│   ├── method_resolution.tsv               # Experimental and SabDab Dervied informations
+│   ├── sequences_initial_chain.tsv         # Chains and sequences pre-formatting
+│   └── sequences_formated_chain.txt        # Chains and sequences post-formatting
 ├── README.md
 ```
