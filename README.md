@@ -27,10 +27,10 @@ This repository provides Python scripts to **filter and extract specific antibod
 
 2. Extract the `.tar` archive:
    ```bash
-   tar -xvf ANABAG_dataset.tar
+   tar -xvf data.tar
     ````
 
-3. Move the extracted folder into this project directory (i.e., where `README.md` is located).
+3. Move the extracted folder into this project directory (i.e., where `README.md` is located). The directory must be named 'data'.
 
 ---
 
@@ -146,7 +146,7 @@ ANABAG-handler/
 
 ---
 
-## 🧹 To Do Before Public Release
+## 🧹 To Do
 
 * [ ] Add download link to ANABAG dataset
 * [ ] Clean or exclude large files (e.g. actual dataset) using `.gitignore`
