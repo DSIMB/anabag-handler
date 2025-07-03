@@ -1,37 +1,44 @@
-
 ---
-
+---
 # ANABAG Handler
-![Graphical presentation](images/3ulu_publi.png)
 
-This repository contains Python scripts that help you **select specific protein complexes and features** from the **ANABAG** dataset.
+![Graphical presentation of ANABAG](images/banner_01.png)
+
+This repository provides Python scripts to **filter and extract specific antibody-antigen complexes** and associated features from the **ANABAG dataset**.
 
 ---
 
 ## What Is ANABAG?
 
-**ANABAG** the ANnotated AntiBody AntiGen is a dataset containing structural and sequential information about Antibody Antigen complexes. ANABAG contains initial and formated 3D coordinates of complexes, per sequence and per residue pre computed features. The dataset is updated every month. Before using this repository, you need to download the dataset separately (instructions below).
+**ANABAG** (ANnotated AntiBody AntiGen) is a curated dataset of antibody–antigen complexes. It includes:
+
+- 3D structural data (with various formats)
+- Per-sequence and per-residue features
+- Monthly updates
+
+> Before using this repository, you must **manually download the ANABAG dataset** (see below).
 
 ---
 
 ## Step 1: Download the ANABAG Dataset
 
-1. Download the ANABAG dataset from this link:
-    **[Download ANABAG Here](!-- TODO: insert download link --)**
-2. Once downloaded, extract the `.tar` archive (you can double-click it on most systems, or use the command line by opening a terminal):
+1. Download from the following link:  
+   **[Download ANABAG Here](<!-- TODO: insert link -->)**
 
+2. Extract the `.tar` archive:
    ```bash
    tar -xvf ANABAG_dataset.tar
-   ```
-3. Move the extracted folder into this project directory (where this README is located).
+    ````
+
+3. Move the extracted folder into this project directory (i.e., where `README.md` is located).
 
 ---
 
-## Step 2: Install Requirements
+## Step 2: Set Up the Environment
 
-To run the scripts, you need **Python 3** and a few common Python packages.
+You need **Python 3.10+** and a few Python packages.
 
-If you use **Conda** , run the following in your terminal:
+If using **Conda**:
 
 ```bash
 conda create -n anabag_env python=3.10 pandas jupyter numpy matplotlib seaborn
@@ -42,75 +49,109 @@ conda activate anabag_env
 
 ## Step 3: Select Complexes or Features
 
-You can select specific protein complexes or per-residue features using a **configuration file** and the provided Python script.
+Use the main script `select_complexes.py` to select complexes or features based on your criteria.
 
-### Example Command:
+### Example usage:
 
 ```bash
-python src/select_complexes.py path/to/ANABAG path/to/your_config.config 
-
-python src/select_complexes.py ./ dataset_info/selection_file_complete.config
-
+python src/select_complexes.py path/to/ANABAG path/to/your_config.config
 ```
 
-Replace:
+Example with provided template:
 
-* `path/to/your_config.config` with your custom configuration file
-* `path/to/ANABAG` with the folder where you extracted the dataset
+```bash
+python src/select_complexes.py ./ dataset_info/selection_file_complete.config
+```
 
-The selected data will be copied in /my_dataset.
-You can find the structures in /my_dataset/structures, and the per residue and per sequence features in /my_dataset/files  
+📁 Output will be saved in the `/my_dataset/` directory:
+
+* `/my_dataset/structures`: contains selected structures
+* `/my_dataset/files`: contains selected feature files
 
 ---
 
 ## Create a Configuration File
 
-The configuration file tells the script **which features** to use for selecting cases.
+The configuration file defines **how to filter complexes**. It is structured in four sections:
 
-* You can find an example here:
-  `dataset_info/example_configuration`
-* A full list of available complex-level and per-residue features is here:
-  `dataset_info/complete_dictionnary_of_features.txt`
+### Sections:
 
-<!-- TODO: Add a brief explanation or visual of what the configuration file looks like -->
+* `Parameters for: Antigen`
+* `Parameters for: Antibody`
+* `Parameters for: Complex`
+* `Parameters for: Selection` (controls what is extracted)
 
-There are four sections in the configuration file:
+### Syntax:
+
+```ini
 Parameters for: Antigen
-Parameters for: Antibody
-Parameters for: Complex
+SequenceIdentity = SG95AG          # SG20AG, SG40AG, SG60AG, SG80AG, SG95AG, SG100AG
+UA_Active_site = 0,8               # Range (min, max)
+
 Parameters for: Selection
+per_residue_info = True            # Extract per-residue feature files
+formatted_structures = True       # Extract formatted structures
+initial_structures = False        # Extract original chain label structures
+rosetta_structures = False        # Extract Rosetta-relaxed structures
+hetatm_structures = False         # Include hetero atoms
+```
+
+### References:
+
+* Example config file: `dataset_info/example_configuration`
+* All possible parameters: `dataset_info/complete_dictionnary_of_features.txt`
+* Explanation of parameters: `dataset_info/parameters_dictionnary.md`
+
 ---
 
-## Visualize the Data (Optional)
+## 📊 Visualize the Data (Optional)
 
-To preview or explore the selected data, open the Jupyter notebook included in this repo. ./src/quick_analysis_example.ipynb
+You can preview and analyze selected data using the provided Jupyter notebook.
 
-1. Start Jupyter Notebook:
+1. Start Jupyter:
 
    ```bash
    jupyter notebook
    ```
-2. Open the notebook file: `... .ipynb` <!-- TODO: Insert the actual notebook filename -->
-3. When prompted, enter the path to the folder where your selected data is stored.
 
-### Example Visualizations
+2. Open: `src/quick_analysis_example.ipynb`
 
-<!-- TODO: Insert or describe example plots (e.g., heatmaps, scatter plots) -->
+3. Set your dataset path inside the notebook:
+
+   ```python
+   path_to_mydataset = 'path/to/anabag-handler/my_dataset/files'
+   ```
 
 ---
 
-## Structure
+## 🗂️ Project Structure
+
 ```
 ANABAG-handler/
 ├── src/
-│   └── select_complexes.py                 # Script for selecting complexes
-│   └── quick_analysis_example.ipynb        # notebook for example visualisation
+│   ├── select_complexes.py              # Main selection script
+│   └── quick_analysis_example.ipynb     # Optional notebook for visualization
 ├── dataset_info/
-│   ├── selection_file_complete.tsv         # Configuration file with all possible parameters
-│   ├── cluster_informations.tsv            # Sequence and interface clustering
-│   ├── per_chain_pdbff_informations.tsv    # Features (per chain) for selection
-│   ├── method_resolution.tsv               # Experimental and SabDab Dervied informations
-│   ├── sequences_initial_chain.tsv         # Chains and sequences pre-formatting
-│   └── sequences_formated_chain.txt        # Chains and sequences post-formatting
+│   ├── selection_file_complete.tsv
+│   ├── cluster_informations.tsv
+│   ├── per_chain_pdbff_informations.tsv
+│   ├── method_resolution.tsv
+│   ├── sequences_initial_chain.tsv
+│   └── sequences_formated_chain.txt
+├── images/
+│   └── 3ulu_publi.png                   # Example visual / schema
 ├── README.md
+└── (Place extracted ANABAG dataset here)
 ```
+
+---
+
+## 🧹 To Do Before Public Release
+
+* [ ] Add download link to ANABAG dataset
+* [ ] Clean or exclude large files (e.g. actual dataset) using `.gitignore`
+* [ ] Add license file (MIT, Apache 2.0, etc.)
+* [ ] Optionally: add a `requirements.txt` for `pip` users
+* All possible parameters: `dataset_info/complete_dictionnary_of_features.txt`
+* Explanation of parameters: `dataset_info/parameters_dictionnary.md`
+---
