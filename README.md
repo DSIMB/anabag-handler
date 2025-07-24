@@ -25,6 +25,8 @@ This repository provides Python scripts to **filter and extract specific antibod
 1. Download from the following link:  
    **[https://zenodo.org/records/15794632](<!-- TODO: insert link -->)**
 
+Last update: 24/06/2025 
+
 2. Extract the `.tar` archive:
    ```bash
    tar -xvf data.tar
@@ -144,14 +146,4 @@ ANABAG-handler/
 └── (Place extracted ANABAG dataset here)
 ```
 
----
-
-## 🧹 To Do
-
-* [ ] Add download link to ANABAG dataset
-* [ ] Clean or exclude large files (e.g. actual dataset) using `.gitignore`
-* [ ] Add license file (MIT, Apache 2.0, etc.)
-* [ ] Optionally: add a `requirements.txt` for `pip` users
-* All possible parameters: `dataset_info/complete_dictionnary_of_features.txt`
-* Explanation of parameters: `dataset_info/parameters_dictionnary.md`
 ---
