@@ -16,7 +16,7 @@ This repository provides Python scripts to **filter and extract specific antibod
 - Per-sequence and per-residue features
 - Monthly updates
 
-> Before using this repository, you must **manually download the ANABAG dataset** (see below).
+> Before using this repository, you must **manually download the ANABAG dataset** (see below). You can also build a subset of biological units without downloading the Zenodo dataset. If so, please see section Selecting and Extracting Biological Units Without a Pre-Downloaded Dataset
 
 ---
 
@@ -105,6 +105,79 @@ hetatm_structures = False         # Include hetero atoms
 * Explanation of parameters: `dataset_info/parameters_dictionnary.md`
 
 ---
+
+## Selecting and Extracting Biological Units Without a Pre-Downloaded Dataset
+
+If you don’t already have the dataset downloaded, you can still build your own subset of biological units using the scripts provided and the files in dataset_info. This workflow lets you select complexes according to your criteria, fetch them directly from the Protein Data Bank (PDB), and extract + format the relevant biological units. You won't have access to the modelled structures, the rosetta structures and the features computed on modelled missing regions.
+
+The process involves three scripts:
+
+### 1. Select complexes
+
+Use select_complexes.py with a configuration file that specifies your selection parameters.
+Make sure to set (in the .config file):
+
+```ini
+Parameters for: Selection
+build_from_pdb = True
+```
+
+This option tells the script to generate a fetcher file containing:
+
+PDB IDs, Chains to extract, Unique biological unit names (One_digit_id)
+
+An example configuration can be found at:
+
+dataset_info/selection_fetcher.config
+
+### 2. Download PDB files
+
+Once the fetcher file is generated, you can either:
+
+Download the PDBs manually, or
+
+Use the helper script fetch_pdbs.py:
+
+```bash
+python src/fetch_pdbs.py ./dataset_info ./pdb_downloads
+```
+
+This will download all required structures into the pdb_downloads/ directory.
+
+### 3. Extract and format biological units (BU)
+
+After downloading the raw PDB files, run extract_bus.py to parse and format them.
+This script will:
+
+Format the BU with its initial chains (renumber residues from 1->N, reorganize the order to: antigen, antibody) [ “initial_chains” version]
+Format the BU in the format chain A (antigen) and B (antibody), [ “formatted_chains” version]
+
+Generate per-residue files for each selected biological unit.
+
+Organize outputs in the same structure as data/:
+
+```ini
+digit_id/structure/ # the .pdbs formated corresponding to the BU
+digit_id/files/ # the per residue feature files corresponding to the residues in the extracted BUs 
+```
+
+Example:
+
+```bash
+python src/extract_bus.py ./dataset_info ./pdb_downloads ./subset_data
+```
+
+### ⚠️ Important Notes
+
+If the extracted BUs contain modelled residues in the Zenodo version, these residues will be ignored in this workflow.
+
+You can control the inclusion/exclusion of these structures with the Number_of_modelled_residues parameter in your config file.
+
+If Number_of_modelled_residues is not set to "0,0" then you are selecting BUs that have modelled residues in the Zenodo version.
+
+These residues are absent from the structure you just extracted, and will be ignored in the per residue files.
+
+However, since the features have been calculated on the modelled structure, you may observe differences in features computed on the overall structure (e.g., net charge, percentage of secondary structures, etc...).
 
 ## 📊 Visualize the Data (Optional)
 

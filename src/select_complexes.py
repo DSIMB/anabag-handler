@@ -1,8 +1,21 @@
+"""
+Biological unit selector Script
+
+Usage:
+    python3 select_complexes.py <path_to_anabag> <path_to_configuration_file>
+
+Arguments:
+    path_to_anabag                  Root directory of the gihub repo (containing the./src ./my_dataset ./data)
+    path_to_configuration_file      Path to the configuration file for selcting BUs (see Create a Configuration File section in the README)
+
+Example:
+    python select_complexes.py ./dataset_info ./dataset_info/configuration
+"""
 import pandas as pd
 import sys, os
 import numpy as np
 import shutil
-
+import create_fetcher_guideFile
 
 def dictionnary_of_selectors(df):
     for c in df.columns:
@@ -31,7 +44,7 @@ def dictionnary_of_selectors(df):
 # ======================== ======================== ======================== ======================== ======================== 
 # ======================== ======================== ======================== ======================== ======================== 
 
-internal = ['per_residue_info','rosetta_structures','formatted_structures','initial_structures','hetatm_structures']
+INTERNAL = ['build_from_pdb','per_residue_info','rosetta_structures','formatted_structures','initial_structures','hetatm_structures']
 
 def assign_values(c,param_field):
     if (c == 'SequenceIdentity') or (c =='InterfaceIdentity'):
@@ -64,7 +77,7 @@ def assign_values(c,param_field):
             return  ('none',np.nan)
         return ('multiClass',selclasses)
 
-    elif c in ['per_residue_info','rosetta_structures','formatted_structures','initial_structures','hetatm_structures']:
+    elif c in INTERNAL:
         if param_field.strip() == 'False':
             return ('internal',False)
         return ('internal',True)
@@ -96,7 +109,7 @@ def read_configuration_complete(file_path):
     if not ('S' in list(parameters.keys())):
         parameters['S'] = {}
 
-    for c in internal + ['redundancy_mode']:
+    for c in INTERNAL + ['redundancy_mode']:
         if not (c in list(parameters['S'].keys())):
             if c == 'redundancy_mode':
                 parameters['S'][c] = 'Intersection'
@@ -164,6 +177,7 @@ def create_new_grouping(df,grouping_cols):
     return df,grouping_col
 
 def send_parameters(c,values,df_curr):
+
     mode_ = values[0]
     if mode_ == 'threshold':
         return select_numerical_criterion_threshold(df_curr,c,values[1],values[2])
@@ -187,9 +201,10 @@ def select_ids(parameters,dfm,dfr,dfc):
             if (column == 'SequenceIdentity') or (column == 'InterfaceIdentity'):
                 grouping_cols.append(values[1])
                 continue
-
             elif column in dfm.columns:
-                df_curr = dfm.loc[dfm['Chain_pdbff'] == chain]
+                df_curr = dfm.copy(deep=True)
+                if chain in ['A','B']:
+                    df_curr = df_curr[df_curr['Chain_pdbff'] == chain]
             elif column in dfr.columns:
                 df_curr = dfr.copy(deep=True)
             elif column in dfc.columns:
@@ -207,7 +222,7 @@ def select_ids(parameters,dfm,dfr,dfc):
                 print(f'Number of selected complexes that satisfies all criterions: {len(selected_ids)}',end='\n\n')
 
 
-    print(grouping_cols)
+    print("Grouping columns:\t\t{}".format(' | '.join(grouping_cols)))
     if (len(grouping_cols) > 0) :
         dfgrouping,grouping_col = create_new_grouping(dfc.copy(deep=True),grouping_cols)
         selected_ids = select_group_criterion(dfgrouping,grouping_col,selected_ids)
@@ -262,14 +277,35 @@ def copy_data(selected_ids,dfm,dfc,dfr,selectionParameters):
 
 # ======================== ======================== ======================== ======================== ======================== 
 # ======================== ======================== ======================== ======================== ======================== 
+# building from pdb
+
+def fetch_from_rcspdb(selected_ids):
+    print("<"*20,"Building from scratch",">"*20)
+    path_to_dataset_info = os.path.join(PATHANABAG,'dataset_info')
+    path_per_res_AG = os.path.join(path_to_dataset_info , 'per_residue_information_AG.tsv')
+    path_per_res_AB = os.path.join(path_to_dataset_info , 'per_residue_information_AB.tsv')
+    output_fetcher = os.path.join(path_to_dataset_info, 'fetcher_pdb_guide.csv')
+    create_fetcher_guideFile.get_guide_fetcher(path_per_res_AG,path_per_res_AB,selected_ids,output_fetcher=output_fetcher)
+    print("Now please download the pdbs listed in the fetcher file")
+    print("You can use the script fetcher_rcspdb.py in ./src:")
+    print(f"python ./src/fetcher_rcspdb.py {path_to_dataset_info} /path/to/output/raw_pdbs")
+# ======================== ======================== ======================== ======================== ======================== 
+# ======================== ======================== ======================== ======================== ======================== 
 
 
         
 PATHANABAG = sys.argv[1] # '/dsimb/abbesses/grand/Documents/Articles/PPI_AGAB_V2/ANABAG'
+file_path = sys.argv[2]
+
+if len(sys.argv) != 3 or sys.argv[1] in ("-h", "--help"):
+    print(__doc__)
+    sys.exit(1)
+
 PATHANABAG_dataset_info = os.path.join(PATHANABAG,'dataset_info')
 dfm = pd.read_csv(os.path.join(PATHANABAG_dataset_info,'per_chain_pdbff_informations.tsv'),sep='\t',index_col=0,engine='c')
 dfc = pd.read_csv(os.path.join(PATHANABAG_dataset_info,'cluster_informations.tsv'),sep='\t',index_col=0,engine='c')
 dfr = pd.read_csv(os.path.join(PATHANABAG_dataset_info,'method_resolution.tsv'),sep='\t',index_col=0,engine='c')
+
 
 identifiers = ['One_digit_id','Chain_pdbff',] + list(np.setdiff1d(dfc.columns,['AbClass','Sequence_length_Ag', 'Sequence_length_Ab']))
 ratios = ['HelicesPercent[G,H,I]','StrandsPercent[E,B]','LoopsPercent[E,B]']
@@ -289,9 +325,12 @@ thresholds = ['affinity','delta_g']
 rosetta_columns = ['yhh_planarity_Complex_crystal','yhh_planarity_Complex_relaxed','yhh_planarity_Monomer_crystal','yhh_planarity_Monomer_relaxed','rama_prepro_Complex_crystal','rama_prepro_Complex_relaxed','rama_prepro_Monomer_crystal','rama_prepro_Monomer_relaxed','ref_Complex_crystal','ref_Complex_relaxed','ref_Monomer_crystal','ref_Monomer_relaxed','p_aa_pp_Complex_crystal','p_aa_pp_Complex_relaxed','p_aa_pp_Monomer_crystal','p_aa_pp_Monomer_relaxed','dslf_fa13_Complex_crystal','dslf_fa13_Complex_relaxed','dslf_fa13_Monomer_crystal','dslf_fa13_Monomer_relaxed','fa_atr_Complex_crystal','fa_atr_Complex_relaxed','fa_atr_Monomer_crystal','fa_atr_Monomer_relaxed','fa_dun_Complex_crystal','fa_dun_Complex_relaxed','fa_dun_Monomer_crystal','fa_dun_Monomer_relaxed','fa_elec_Complex_crystal','fa_elec_Complex_relaxed','fa_elec_Monomer_crystal','fa_elec_Monomer_relaxed','fa_intra_rep_Complex_crystal','fa_intra_rep_Complex_relaxed','fa_intra_rep_Monomer_crystal','fa_intra_rep_Monomer_relaxed','fa_intra_sol_xover4_Complex_crystal','fa_intra_sol_xover4_Complex_relaxed','fa_intra_sol_xover4_Monomer_crystal','fa_intra_sol_xover4_Monomer_relaxed','fa_rep_Complex_crystal','fa_rep_Complex_relaxed','fa_rep_Monomer_crystal','fa_rep_Monomer_relaxed','fa_sol_Complex_crystal','fa_sol_Complex_relaxed','fa_sol_Monomer_crystal','fa_sol_Monomer_relaxed','hbond_bb_sc_Complex_crystal','hbond_bb_sc_Complex_relaxed','hbond_bb_sc_Monomer_crystal','hbond_bb_sc_Monomer_relaxed','hbond_lr_bb_Complex_crystal','hbond_lr_bb_Complex_relaxed','hbond_lr_bb_Monomer_crystal','hbond_lr_bb_Monomer_relaxed','hbond_sc_Complex_crystal','hbond_sc_Complex_relaxed','hbond_sc_Monomer_crystal','hbond_sc_Monomer_relaxed','hbond_sr_bb_Complex_crystal','hbond_sr_bb_Complex_relaxed','hbond_sr_bb_Monomer_crystal','lk_ball_wtd_Complex_crystal','lk_ball_wtd_Complex_relaxed','lk_ball_wtd_Monomer_crystal','lk_ball_wtd_Monomer_relaxed','omega_Complex_crystal','omega_Complex_relaxed','omega_Monomer_crystal','omega_Monomer_relaxed','pro_close_Complex_crystal','pro_close_Complex_relaxed','pro_close_Monomer_crystal','pro_close_Monomer_relaxed','score_Complex_crystal','score_Complex_relaxed','score_Monomer_crystal','score_Monomer_relaxed']
 
 
-file_path = sys.argv[2]
 parameters = read_configuration_complete(file_path)
 selected_ids = select_ids(parameters,dfm,dfr,dfc)
-copy_data(selected_ids,dfm,dfc,dfr,parameters['S'])
+
+if parameters['S']['build_from_pdb']:
+    fetch_from_rcspdb(selected_ids)
+else:
+    copy_data(selected_ids,dfm,dfc,dfr,parameters['S'])
 
 

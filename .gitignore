@@ -14,3 +14,19 @@ __pycache__/
 .vscode/
 .DS_Store
 
+# ignore datasets content
+my_dataset
+pdb_downloads
+
+# ignore src files
+anabag_features.ipynb
+ephemerate.ipynb
+feature_descriptions_ag.py
+feature_descriptions.py
+feature_profiles_ag.json
+feature_profiles.json
+features_ag.md
+feature_summary_ag.txt
+feature_summary.txtdataset_info/per_residue_information_AB.tsv
+dataset_info/per_residue_information_AG.tsv
+dataset_info/per_residue_information_*.tsv
