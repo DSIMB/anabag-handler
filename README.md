@@ -14,7 +14,7 @@ This repository provides Python scripts to **filter and extract specific antibod
 
 - 3D structural data (with various formats)
 - Per-sequence and per-residue features
-- Monthly updates
+- Frequent updates (the zenodo record will be updated when a substantial number of new cases are added)
 
 > Before using this repository, you must **manually download the ANABAG dataset** (see below). You can also build a subset of biological units without downloading the Zenodo dataset. If so, please see section Selecting and Extracting Biological Units Without a Pre-Downloaded Dataset
 
@@ -23,16 +23,22 @@ This repository provides Python scripts to **filter and extract specific antibod
 ## Step 1: Download the ANABAG Dataset
 
 1. Download from the following link:  
-   **[https://zenodo.org/records/15794632](<!-- TODO: insert link -->)**
+   **[https://zenodo.org/records/17065788](<!-- TODO: insert link -->)**
 
-Last update: 24/06/2025 
+Last update: 29/08/2025 
+You can download the data.tar.gz, or the light_version.tar.gz, both are compatible with the python scripts.  
+You also need the per_residue_files if you wish to get the per residue features. 
+In the ./dataset_info you can find per-BU and per-chain informations.
 
 2. Extract the `.tar` archive:
    ```bash
    tar -xvf data.tar
+   tar -xvf per_residue_files.tar
     ````
 
-3. Move the extracted folder into this project directory (i.e., where `README.md` is located). The directory must be named 'data'.
+3. Move the extracted data or light version folder into this project directory (i.e., where `README.md` is located). The directory must be named 'data'.
+
+4. Move the per_residue_information .tsv files (both) to the dataset_info/ directory.
 
 ---
 
@@ -92,17 +98,19 @@ UA_Active_site = 0,8               # Range (min, max)
 
 Parameters for: Selection
 per_residue_info = True            # Extract per-residue feature files
-formatted_structures = True       # Extract formatted structures
+formatted_structures = True       # Extract formatted structures 
 initial_structures = False        # Extract original chain label structures
 rosetta_structures = False        # Extract Rosetta-relaxed structures
 hetatm_structures = False         # Include hetero atoms
 ```
 
-### References:
+Note that if you use the light version - containing only the "formatted_structures" you should set initial_structures, rosetta_structures and hetatm_structures flags to False.
 
-* Example config file: `dataset_info/example_configuration`
-* All possible parameters: `dataset_info/complete_dictionnary_of_features.txt`
-* Explanation of parameters: `dataset_info/parameters_dictionnary.md`
+### Reference files:
+
+* All possible parameters: `dataset_info/selection_file_complete.config`
+* Example configuration: `dataset_info/selection_example.config`
+* Explanation of features: `dataset_info/features.md`
 
 ---
 
@@ -179,6 +187,29 @@ These residues are absent from the structure you just extracted, and will be ign
 
 However, since the features have been calculated on the modelled structure, you may observe differences in features computed on the overall structure (e.g., net charge, percentage of secondary structures, etc...).
 
+### Polyspecificity and Epitope Convergence Data
+
+Direct access to the polyspecific antibodies and epitope convergence cases identified in the ANABAG paper is provided through two dedicated files:
+Polyspecific Antibodies
+Access polyspecific antibody cases via ./dataset_info/polyspecificity_labels.csv. This file contains antibodies that bind multiple distinct antigens, organized by different sequence identity thresholds.
+Epitope Convergence
+Access epitope convergence cases via ./dataset_info/epitope_convergence.csv. This file identifies different antibodies that target similar epitope regions.
+File Structure
+
+Each column represents a specific condition or grouping criterion
+Values in cells represent group labels assigned to biological units (BUs)
+Label -1 indicates no group assignment
+BUs sharing the same label (other than -1) belong to the same polyspecific or convergent group
+
+Usage Example
+To identify polyspecific antibodies:
+
+Select the appropriate column based on your sequence identity threshold of interest
+Find all BUs with the same label (excluding -1)
+These BUs represent the same antibody binding to different antigens
+
+For epitope convergence, the same principle applies: BUs with matching labels represent different antibodies targeting similar epitopes.
+
 ## 📊 Visualize the Data (Optional)
 
 You can preview and analyze selected data using the provided Jupyter notebook.
@@ -197,26 +228,5 @@ You can preview and analyze selected data using the provided Jupyter notebook.
    path_to_mydataset = 'path/to/anabag-handler/my_dataset/files'
    ```
 
----
-
-## 🗂️ Project Structure
-
-```
-ANABAG-handler/
-├── src/
-│   ├── select_complexes.py              # Main selection script
-│   └── quick_analysis_example.ipynb     # Optional notebook for visualization
-├── dataset_info/
-│   ├── selection_file_complete.tsv
-│   ├── cluster_informations.tsv
-│   ├── per_chain_pdbff_informations.tsv
-│   ├── method_resolution.tsv
-│   ├── sequences_initial_chain.tsv
-│   └── sequences_formated_chain.txt
-├── images/
-│   └── 3ulu_publi.png                   # Example visual / schema
-├── README.md
-└── (Place extracted ANABAG dataset here)
-```
-
----
+### Reference & citation
+...

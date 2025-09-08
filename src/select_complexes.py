@@ -234,15 +234,16 @@ def select_ids(parameters,dfm,dfr,dfc):
 
 def copy_data(selected_ids,dfm,dfc,dfr,selectionParameters):
     path_to_mydataset_structures = os.path.join(PATHANABAG,'my_dataset','structures')
+    os.makedirs(path_to_mydataset_structures)
     path_to_mydataset_files = os.path.join(PATHANABAG,'my_dataset','files')
+    os.makedirs(path_to_mydataset_files)
     labs = []
     lags = []
     print('Copying structure files')
     for digit_id in selected_ids:
         path_folder = os.path.join(PATHANABAG,'data',digit_id)
-        if selectionParameters['per_residue_info'][1]:
-            lags.append(os.path.join(path_folder,'files','per_residue_information_AG.tsv'))
-            labs.append(os.path.join(path_folder,'files','per_residue_information_AB.tsv'))
+        lags.append(os.path.join(path_folder,'files','per_residue_information_AG.tsv'))
+        labs.append(os.path.join(path_folder,'files','per_residue_information_AB.tsv'))
         if selectionParameters['rosetta_structures'][1]:
             agr = os.path.join(path_folder,'structures',digit_id + '_AG-rosetta_relaxed.pdb')
             abr = os.path.join(path_folder,'structures',digit_id + '_AB-rosetta_relaxed.pdb')
@@ -256,6 +257,8 @@ def copy_data(selected_ids,dfm,dfc,dfr,selectionParameters):
         if selectionParameters['initial_structures'][1]:
             cplx = os.path.join(path_folder,'structures',digit_id + '-initial_chains.pdb')
             shutil.copy2(cplx,path_to_mydataset_structures)
+            print(cplx)
+            print(path_to_mydataset_structures)
         if selectionParameters['hetatm_structures'][1]:
             cplx = os.path.join(path_folder,'structures',digit_id + '-initial_chains_hetatm.pdb')
             shutil.copy2(cplx,path_to_mydataset_structures)
@@ -328,7 +331,7 @@ rosetta_columns = ['yhh_planarity_Complex_crystal','yhh_planarity_Complex_relaxe
 parameters = read_configuration_complete(file_path)
 selected_ids = select_ids(parameters,dfm,dfr,dfc)
 
-if parameters['S']['build_from_pdb']:
+if parameters['S']['build_from_pdb'][1]:
     fetch_from_rcspdb(selected_ids)
 else:
     copy_data(selected_ids,dfm,dfc,dfr,parameters['S'])

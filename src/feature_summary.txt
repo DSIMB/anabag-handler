@@ -1,0 +1,15 @@
+ANTIBODY-ANTIGEN DATABASE FEATURE SUMMARY
+==================================================
+
+Generated on: 2025-07-28 19:54:23
+Total features: 197
+
+Dataset shape: 2,316,601 rows × 198 columns
+Memory usage: 6619.65 MB
+
+Feature Types:
+- Numeric: 156
+- Binary: 2
+- Categorical: 39
+
+Features with missing values: 163
