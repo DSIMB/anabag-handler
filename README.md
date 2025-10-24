@@ -229,4 +229,9 @@ You can preview and analyze selected data using the provided Jupyter notebook.
    ```
 
 ### Reference & citation
-...
+ANABAG: Annotated Antibody–Antigen Data Set with Unique Features for Antibody Engineering Applications
+Grandguillaume, Ilyas
+Barroso da Silva, Fernando Luís
+Etchebest, Catherine
+Journal of Chemical Information and Modeling
+doi: 10.1021/acs.jcim.5c01599
