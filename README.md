@@ -25,7 +25,7 @@ This repository provides Python scripts to **filter and extract specific antibod
 1. Download from the following link:  
    **[https://zenodo.org/records/17065788](<!-- TODO: insert link -->)**
 
-Last update: 29/08/2025 
+Last update: 29/08/2025 (Note 10/12/25: I had to defend my PhD, so I was not updating ANABAG. We are working now on an automatic solution for updates. Coming soon) 
 You can download the data.tar.gz, or the light_version.tar.gz, both are compatible with the python scripts.  
 You also need the per_residue_files if you wish to get the per residue features. 
 In the ./dataset_info you can find per-BU and per-chain informations.
